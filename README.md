@@ -1,4 +1,4 @@
-# Juego basado en:
+# Juego inspirado en:
 ## Hollow Knight
 ![](docs/hollowknight.jpg)
 ## Sekiro: Shadows Die Twice
