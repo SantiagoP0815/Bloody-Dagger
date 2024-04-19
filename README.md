@@ -1,4 +1,4 @@
-# Juego altamente basado en:
+# Juego basado en:
 ## Hollow Knight
 ![](docs/hollowknight.jpg)
 ## Sekiro: Shadows Die Twice
