@@ -10,7 +10,7 @@ public class MovimientoJugador : MonoBehaviour
     private float inputX;
     private float movimientoHorizontal = 0f;
     [SerializeField] private float velocidadDeMovimiento;
-    [Range(0, 0.3f)][SerializeField] private float suavizadoDeMovimiento;
+    [SerializeField] private float suavizadoDeMovimiento;
     private Vector3 velocidad = Vector3.zero;
     private bool mirandoDerecha = true;
 
@@ -29,15 +29,21 @@ public class MovimientoJugador : MonoBehaviour
     [SerializeField] private bool deslizando;
     [SerializeField] private float velocidadDeslizar;
 
+    [Header("Animator")]
+    private Animator animator;
+
     private void Start()
     {
         rb2D = GetComponent<Rigidbody2D>();
+        animator = GetComponent<Animator>();
     }
 
     private void Update()
     {
         inputX = Input.GetAxisRaw("Horizontal");
         movimientoHorizontal = inputX * velocidadDeMovimiento;
+
+        animator.SetFloat("Horizontal", Mathf.Abs(movimientoHorizontal));
 
         if (Input.GetButtonDown("Jump"))
         {
@@ -47,10 +53,12 @@ public class MovimientoJugador : MonoBehaviour
         if(!enSuelo && enPared && inputX != 0)
         {
             deslizando = true;
+            suavizadoDeMovimiento = 0.3f;
         }
         else
         {
             deslizando= false;
+            suavizadoDeMovimiento = 0f;
         }
     }
 
@@ -58,6 +66,8 @@ public class MovimientoJugador : MonoBehaviour
     {
         enSuelo = Physics2D.OverlapBox(controladorSuelo.position, dimensionesCajaSuelo, 0f, queEsSuelo);
         enPared = Physics2D.OverlapBox(controladorPared.position, dimensionesCajaPared, 0f, queEsSuelo);
+
+        animator.SetBool("enSuelo", enSuelo);
 
 
         Mover(movimientoHorizontal * Time.fixedDeltaTime, salto);
@@ -70,24 +80,22 @@ public class MovimientoJugador : MonoBehaviour
         }
     }
 
-private void Mover(float mover, bool saltar)
-{
-    Vector3 velocidadObjetivo = new Vector2(mover, rb2D.velocity.y);
+    private void Mover(float mover, bool saltar)
+    {
+        Vector3 velocidadObjetivo = new Vector2(mover, rb2D.velocity.y);
     
-    // Ajustar el suavizado de movimiento dependiendo de si el jugador está deslizando o no
-    float suavizadoActual = deslizando ? 0.3f : suavizadoDeMovimiento;
-    rb2D.velocity = Vector3.SmoothDamp(rb2D.velocity, velocidadObjetivo, ref velocidad, suavizadoActual);
+        rb2D.velocity = Vector3.SmoothDamp(rb2D.velocity, velocidadObjetivo, ref velocidad, suavizadoDeMovimiento);
 
-    if ((mover > 0 && !mirandoDerecha) || (mover < 0 && mirandoDerecha))
-    {
-        Girar();
-    }
+        if ((mover > 0 && !mirandoDerecha) || (mover < 0 && mirandoDerecha))
+        {
+            Girar();
+        }
 
-    if (enSuelo && saltar)
-    {
-        Salto();
+        if (enSuelo && saltar)
+        {
+            Salto();
+        }
     }
-}
 
 
     private void Salto()
