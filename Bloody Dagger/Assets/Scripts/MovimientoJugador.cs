@@ -20,6 +20,8 @@ public class MovimientoJugador : MonoBehaviour
     [SerializeField] private Transform controladorSuelo;
     [SerializeField] private Vector3 dimensionesCajaSuelo;
     [SerializeField] private bool enSuelo;
+    [SerializeField] private float coyoteTime;
+    private float tiempoEnElAire;
     private bool salto = false;
 
     [Header("DeslizarPared")]
@@ -28,6 +30,7 @@ public class MovimientoJugador : MonoBehaviour
     [SerializeField] private bool enPared;
     [SerializeField] private bool deslizando;
     [SerializeField] private float velocidadDeslizar;
+    [SerializeField] private float fuerzaDeDespeguePared;
 
     [Header("Animator")]
     private Animator animator;
@@ -69,6 +72,14 @@ public class MovimientoJugador : MonoBehaviour
 
         animator.SetBool("enSuelo", enSuelo);
 
+        if(enSuelo == true || deslizando == true)
+        {
+            tiempoEnElAire = 0;
+        }
+        else
+        {
+            tiempoEnElAire += Time.deltaTime;
+        }
 
         Mover(movimientoHorizontal * Time.fixedDeltaTime, salto);
 
@@ -95,13 +106,25 @@ public class MovimientoJugador : MonoBehaviour
         {
             Salto();
         }
+        else if (deslizando && saltar)
+        {
+            Salto();
+            rb2D.AddForce(new Vector2(-fuerzaDeDespeguePared * inputX, 0f));
+        }
+        else if ((enSuelo == false && saltar == true) || (deslizando == false && saltar == true))
+        {
+            if (tiempoEnElAire < coyoteTime)
+            {
+                Salto();
+            }
+        }
     }
 
 
     private void Salto()
     {
         enSuelo = false;
-        rb2D.AddForce(new Vector2(0f, fuerzaDeSalto));
+        rb2D.velocity = new Vector2(rb2D.velocity.x, fuerzaDeSalto);
     }
 
     private void Girar()
