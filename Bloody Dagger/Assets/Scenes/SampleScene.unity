@@ -4889,14 +4889,15 @@ MonoBehaviour:
   dimensionesCajaSuelo: {x: 0.6, y: 0.1, z: 0}
   enSuelo: 0
   coyoteTime: 0.2
-  coolDownDash: 2
   controladorPared: {fileID: 1018187095}
   dimensionesCajaPared: {x: 0.2, y: 0.8, z: 0}
   enPared: 0
   deslizando: 0
   velocidadDeslizar: 0
   fuerzaDeDespeguePared: 1000
-  fuerzaDeDash: 13.76
+  velocidadDash: 50
+  tiempoDash: 0.1
+  cooldownDash: 1
 --- !u!61 &1483911061
 BoxCollider2D:
   m_ObjectHideFlags: 0
