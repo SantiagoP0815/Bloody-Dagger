@@ -10,7 +10,7 @@ public class MovimientoJugador : MonoBehaviour
     private float inputX;
     private float movimientoHorizontal = 0f;
     [SerializeField] private float velocidadDeMovimiento;
-    [SerializeField] private float suavizadoDeMovimiento;
+    private float suavizadoDeMovimiento = 0f;
     private Vector3 velocidad = Vector3.zero;
     private bool mirandoDerecha = true;
 
@@ -32,6 +32,15 @@ public class MovimientoJugador : MonoBehaviour
     [SerializeField] private float velocidadDeslizar;
     [SerializeField] private float fuerzaDeDespeguePared;
 
+    [Header("Dash")]
+    [SerializeField] private float velocidadDash;
+    [SerializeField] private float tiempoDash;
+    [SerializeField] private float cooldownDash;
+    private float tiempoDeDash;
+    private float gravedadInicial;
+    private bool puedeHacerDash = true;
+    private bool sePuedeMover = true;
+
     [Header("Animator")]
     private Animator animator;
 
@@ -39,6 +48,7 @@ public class MovimientoJugador : MonoBehaviour
     {
         rb2D = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
+        gravedadInicial = rb2D.gravityScale;
     }
 
     private void Update()
@@ -63,6 +73,11 @@ public class MovimientoJugador : MonoBehaviour
             deslizando= false;
             suavizadoDeMovimiento = 0f;
         }
+
+        if(Input.GetKeyDown(KeyCode.LeftShift) && puedeHacerDash && tiempoDeDash > cooldownDash)
+        {
+            StartCoroutine(Dash());
+        }
     }
 
     private void FixedUpdate()
@@ -72,7 +87,9 @@ public class MovimientoJugador : MonoBehaviour
 
         animator.SetBool("enSuelo", enSuelo);
 
-        if(enSuelo == true || deslizando == true)
+        tiempoDeDash += Time.deltaTime;
+
+        if (enSuelo == true || deslizando == true)
         {
             tiempoEnElAire = 0;
         }
@@ -81,14 +98,10 @@ public class MovimientoJugador : MonoBehaviour
             tiempoEnElAire += Time.deltaTime;
         }
 
-        Mover(movimientoHorizontal * Time.fixedDeltaTime, salto);
-
-        salto = false;
-
-        if(deslizando) 
-        {
-            rb2D.velocity = new Vector2(rb2D.velocity.x, Mathf.Clamp(rb2D.velocity.y, -velocidadDeslizar, float.MaxValue));
+        if (sePuedeMover) { 
+            Mover(movimientoHorizontal * Time.fixedDeltaTime, salto);
         }
+        salto = false;
     }
 
     private void Mover(float mover, bool saltar)
@@ -108,8 +121,7 @@ public class MovimientoJugador : MonoBehaviour
         }
         else if (deslizando && saltar)
         {
-            Salto();
-            rb2D.AddForce(new Vector2(-fuerzaDeDespeguePared * inputX, 0f));
+            SaltoDePared();
         }
         else if ((enSuelo == false && saltar == true) || (deslizando == false && saltar == true))
         {
@@ -118,6 +130,24 @@ public class MovimientoJugador : MonoBehaviour
                 Salto();
             }
         }
+
+        if (deslizando)
+        {
+            rb2D.velocity = new Vector2(rb2D.velocity.x, Mathf.Clamp(rb2D.velocity.y, -velocidadDeslizar, float.MaxValue));
+        }
+    }
+
+    private IEnumerator Dash()
+    {
+        sePuedeMover = false;
+        puedeHacerDash = false;
+        rb2D.gravityScale = 0;
+        rb2D.velocity = new Vector2(velocidadDash * transform.localScale.x, 0);
+        yield return new WaitForSeconds(tiempoDash);
+        sePuedeMover = true;
+        puedeHacerDash = true;
+        rb2D.gravityScale = gravedadInicial;
+        tiempoDeDash = 0;
     }
 
 
@@ -125,6 +155,7 @@ public class MovimientoJugador : MonoBehaviour
     {
         enSuelo = false;
         rb2D.velocity = new Vector2(rb2D.velocity.x, fuerzaDeSalto);
+        tiempoEnElAire = 1f;
     }
 
     private void Girar()
@@ -133,6 +164,12 @@ public class MovimientoJugador : MonoBehaviour
         Vector3 escala = transform.localScale;
         escala.x *= -1;
         transform.localScale = escala;
+    }
+
+    private void SaltoDePared()
+    {
+        Salto();
+        rb2D.AddForce(new Vector2(-fuerzaDeDespeguePared * inputX, 0f));
     }
 
     private void OnDrawGizmos()
