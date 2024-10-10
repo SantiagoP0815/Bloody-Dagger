@@ -110,7 +110,7 @@ public class MovimientoJugador : MonoBehaviour
     
         rb2D.velocity = Vector3.SmoothDamp(rb2D.velocity, velocidadObjetivo, ref velocidad, suavizadoDeMovimiento);
 
-        if ((mover > 0 && !mirandoDerecha) || (mover < 0 && mirandoDerecha))
+        if ((mover > 0 && mirandoDerecha) || (mover < 0 && !mirandoDerecha))
         {
             Girar();
         }
@@ -142,7 +142,7 @@ public class MovimientoJugador : MonoBehaviour
         sePuedeMover = false;
         puedeHacerDash = false;
         rb2D.gravityScale = 0;
-        rb2D.velocity = new Vector2(velocidadDash * transform.localScale.x, 0);
+        rb2D.velocity = new Vector2(-velocidadDash * transform.localScale.x, 0);
         yield return new WaitForSeconds(tiempoDash);
         sePuedeMover = true;
         puedeHacerDash = true;
