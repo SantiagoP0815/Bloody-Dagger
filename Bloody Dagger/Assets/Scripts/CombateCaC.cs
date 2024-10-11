@@ -7,12 +7,15 @@ public class CombateCaC : MonoBehaviour
     [SerializeField] private Transform controladorGolpe;
     [SerializeField] private float radioGolpe;
     [SerializeField] private float dañoGolpe;
+    [SerializeField] private float tiempoEntreAtaques = 1.0f; // Cooldown entre ataques
+
+    private bool puedeAtacar = true; // Controla si el personaje puede atacar
 
     private void Update()
     {
-        if (Input.GetButtonDown("Fire1"))
+        if (Input.GetButtonDown("Fire1") && puedeAtacar)
         {
-            StartCoroutine(AtacarConRetraso(0.5f));
+            StartCoroutine(AtacarConRetraso(0.5f)); // Lanza el ataque solo si puede atacar
         }
     }
 
@@ -37,7 +40,12 @@ public class CombateCaC : MonoBehaviour
 
     private IEnumerator AtacarConRetraso(float delay)
     {
-        yield return new WaitForSeconds(delay); // Espera el tiempo indicado
-        Golpe(); // Ejecuta el ataque después de la espera
+        puedeAtacar = false; // Evita nuevos ataques durante el retraso
+
+        yield return new WaitForSeconds(delay); // Espera antes de realizar el ataque
+        Golpe(); // Ejecuta el golpe
+
+        yield return new WaitForSeconds(tiempoEntreAtaques); // Espera el tiempo de cooldown
+        puedeAtacar = true; // Permite atacar de nuevo
     }
 }
