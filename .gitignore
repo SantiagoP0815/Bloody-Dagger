@@ -3,8 +3,8 @@
 # Get latest from https://github.com/github/gitignore/blob/main/Unity.gitignore
 #
 [Ll]ibrary/
-/Bloody Dagger/[Tt]emp/
 [Oo]bj/
+/Bloody Dagger/[Tt]emp/
 [Bb]uild/
 [Bb]uilds/
 [Ll]ogs/
